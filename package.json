@@ -6,12 +6,13 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "vite build --watch"
+    "dev": "concurrently \"vite build --watch\" \"tailwindcss -i ./src/index.css -o ./static/index.css --watch\""
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "autoprefixer": "^10.4.19",
+    "concurrently": "^8.2.2",
     "postcss": "^8.4.38",
     "prettier": "^3.2.5",
     "prettier-plugin-go-template": "^0.0.15",
