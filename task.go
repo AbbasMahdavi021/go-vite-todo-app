@@ -103,52 +103,78 @@ func inserTask(title string) (Item, error) {
 }
 
 func deleteTask(ctx context.Context, ID int) error {
+    // Delete the task with the specified ID
+    _, err := DB.Exec("DELETE FROM tasks WHERE id = ?", ID)
+    if err != nil {
+        return err
+    }
 
-	_, err := DB.Exec("delete from tasks where id = (?)", ID)
+    // Retrieve the remaining task IDs ordered by their position
+    rows, err := DB.Query("SELECT id FROM tasks ORDER BY position")
+    if err != nil {
+        return err
+    }
 
-	if err != nil {
-		return err
-	}
+    var ids []int
+    for rows.Next() {
+        var id int
+        if err := rows.Scan(&id); err != nil {
+            return err
+        }
+        ids = append(ids, id)
+    }
 
-	rows, err := DB.Query("select id from tasks order by positon")
+    // Begin a new transaction to ensure all position updates are applied together
+    tx, err := DB.BeginTx(ctx, nil)
+    if err != nil {
+        return err
+    }
 
-	if err != nil {
-		return err
-	}
+    // Ensure rollback if commit fails or if an error occurs before committing
+    defer tx.Rollback()
 
-	var ids []int
+    // Reassign positions to maintain a continuous sequence after deletion
+    for idx, id := range ids {
+        _, err := tx.Exec("UPDATE tasks SET position = ? WHERE id = ?", idx, id)
+        if err != nil {
+            return err
+        }
+    }
 
-	for rows.Next() {
-		var id int
-		err :=  rows.Scan(&id)
-		if err != nil {
-			return err
-		}
+    // Commit the transaction to finalize changes
+    if err := tx.Commit(); err != nil {
+        return err
+    }
 
-		ids = append(ids, id)
-	}
+    return nil
+}
 
+
+
+func orderTasks(ctx context.Context, values []int) error {
 	tx, err := DB.BeginTx(ctx, nil)
-
 	if err != nil {
-		return nil
+		return err
 	}
 
 	defer tx.Rollback()
 
-	for idx, id := range ids {
-		_, err := DB.Exec("update tasks set position = (?) where id = (?)", idx, id)
-
+	// Iterate over the provided values to update task positions
+	for i, v := range values {
+		// Update the position of the task with the corresponding ID
+		_, err := tx.Exec("UPDATE tasks SET position = (?) WHERE id = (?)", i, v)
 		if err != nil {
 			return err
 		}
 	}
-	err = tx.Commit()
-	if err != nil {
+	
+	if err := tx.Commit(); err != nil {
 		return err
 	}
 
 	return nil
-
-
 }
+
+
+
+
