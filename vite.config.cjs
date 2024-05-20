@@ -1,11 +1,11 @@
 import { resolve } from "path";
 import { defineConfig } from "vite";
 
-export default defineConfig({
+const config = defineConfig({
   build: {
     lib: {
       entry: [resolve(__dirname, "src/htmx.js")],
-      formar: ["es"],
+      formats: ["es"],
       name: "[name]",
       fileName: "[name]",
     },
@@ -13,3 +13,5 @@ export default defineConfig({
     emptyOutDir: false,
   },
 });
+
+module.exports = config;

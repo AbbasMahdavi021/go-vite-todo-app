@@ -1,3 +1,4 @@
+/** @type {import("prettier").Config} */
 const config = {
   plugins: ["prettier-plugin-go-template"],
   overrides: [

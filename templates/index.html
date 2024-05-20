@@ -1,20 +1,30 @@
 {{ define "Base" }}
+  <!doctype html>
 
-<!doctype html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Go- Todo</title>
+      <link href="/static/index.css" rel="stylesheet" />
+      <script src="/static/htmx.js" type="text/javascript"></script>
+    </head>
+    <body>
+      <div class="w-full h-screen text-6xl font-bold bg-red-200 p-4">
+        <div class="justify-center max-w-screen-md  mx-auto mt-8 ">
+          <div class="flex flex-col justify-between items-center">
+            {{ template "TotalCount" }}
+            {{ template "CompletedCount" }}
+          </div>
 
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Go- Todo</title>
-    <link href="/static/index.css" rel="stylesheet" />
-    <script src="/static/htmx.js" type="text/javascript"></script>
-  </head>
-  <body>
-    <div class="w-full bg-red-500">
-      <p class="text-5xl text-white">Hel Word!</p>
-    </div>
-  </body>
-</html>
+          {{ template "Form" }}
 
+
+          <div id="items" class="space-y-2.5 mt-4">
+            {{ range .Items }}{{ template "Item" }}{{ end }}
+          </div>
+        </div>
+      </div>
+    </body>
+  </html>
 {{ end }}
