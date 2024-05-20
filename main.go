@@ -1,7 +1,6 @@
 package main
 
 import (
-	"html/template"
 	"log"
 	"net/http"
 
@@ -16,12 +15,18 @@ func main() {
 	}
 	defer closeDB()
 	err = setupDB()
+	if err != nil {
+		log.Panic(err)
+	}
+	err = parseTemplates()
+	if err != nil {
+		log.Panic(err)
+	}
     r := chi.NewRouter()
     r.Use(middleware.Logger)
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
     r.Get("/", func(w http.ResponseWriter, _ *http.Request) {
-        temp, _ := template.New("").ParseFiles("templates/index.html")
-		temp.ExecuteTemplate(w, "Base", nil)
+		tmpl.ExecuteTemplate(w, "Base", nil)
     })
     http.ListenAndServe("localhost:3000", r)
 }
